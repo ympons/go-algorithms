@@ -71,6 +71,9 @@ func (qf qfUF) Connected(p, q int) bool {
 
 func (qf *qfUF) Union(p, q int) {
 	pid, qid := qf.id[p], qf.id[q]
+	if pid == qid {
+		return
+	}
 	// change all entries with id[p] to id[q] (at most 2N+2 array accesses)
 	for i := 0; i < len(qf.id); i++ {
 		if qf.id[i] == pid {
@@ -117,7 +120,7 @@ func (qu quUF) Connected(p, q int) bool {
 func (qu *quUF) Find(p int) int {
 	// chase parent pointers until reach root (depth of i array accesses)
 	for p != qu.id[p] {
-		// this extra line is for Path compression
+		// this extra line is for path compression by halving
 		// Keeps tree almost completely flat
 		qu.id[p] = qu.id[qu.id[p]]
 
@@ -128,6 +131,9 @@ func (qu *quUF) Find(p int) int {
 
 func (qu *quUF) Union(p, q int) {
 	i, j := qu.Find(p), qu.Find(q)
+	if i == j {
+		return
+	}
 	// change root of p to point to root of q (depth of p and q array accesses)
 	qu.id[i] = j
 	qu.count--
