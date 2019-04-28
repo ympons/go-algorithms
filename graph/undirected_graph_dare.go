@@ -1,17 +1,20 @@
 package graph
 
-// Checking for cycles
+// Checking for cycles in a graph
+
+// Cycle interface
 type Cycle interface {
 	HasCycle() bool
 }
 
-type cycle_ struct {
+type cycle struct {
 	marked   []bool
 	hasCycle bool
 }
 
-func New(g Graph) *cycle_ {
-	c := &cycle_{marked: make([]bool, g.V())}
+// NewCycle creates cycle instance
+func NewCycle(g Graph) Cycle {
+	c := &cycle{marked: make([]bool, g.V())}
 	for s := 0; s < g.V(); s++ {
 		if !c.marked[s] {
 			c.dfs(g, s, s)
@@ -20,7 +23,7 @@ func New(g Graph) *cycle_ {
 	return c
 }
 
-func (c *cycle_) dfs(g Graph, v, u int) {
+func (c *cycle) dfs(g Graph, v, u int) {
 	c.marked[v] = true
 	for _, w := range g.Adj(v) {
 		if !c.marked[w] {
@@ -31,23 +34,26 @@ func (c *cycle_) dfs(g Graph, v, u int) {
 	}
 }
 
-func (c cycle_) HasCycle() bool {
+func (c cycle) HasCycle() bool {
 	return c.hasCycle
 }
 
-// Bipartite graph
+// BiPartite graph
+
+// BiPartite interface
 type BiPartite interface {
 	IsBipartite() bool
 }
 
-type bipartite_ struct {
+type bipartite struct {
 	marked      []bool
 	color       []bool
 	isBipartite bool
 }
 
-func NewBipartite(g Graph) *bipartite_ {
-	b := &bipartite_{
+// NewBipartite creates a BiPartite instance
+func NewBipartite(g Graph) BiPartite {
+	b := &bipartite{
 		marked:      make([]bool, g.V()),
 		color:       make([]bool, g.V()),
 		isBipartite: true,
@@ -61,7 +67,7 @@ func NewBipartite(g Graph) *bipartite_ {
 	return b
 }
 
-func (b *bipartite_) dfs(g Graph, v int) {
+func (b *bipartite) dfs(g Graph, v int) {
 	b.marked[v] = true
 	for _, w := range g.Adj(v) {
 		if !b.marked[w] {
@@ -73,21 +79,30 @@ func (b *bipartite_) dfs(g Graph, v int) {
 	}
 }
 
-func (b bipartite_) IsBipartite() bool {
+func (b bipartite) IsBipartite() bool {
 	return b.isBipartite
 }
 
 // TODO Eulerian path
+
+// EulerianCycle interface
 type EulerianCycle interface {
 	EulerianPath() []int
 }
 
-type eulerian_ struct{}
+type eulerian struct{}
 
-func NewEulerianPath(g Graph) *eulerian_ {
-	e := &eulerian_{}
+// NewEulerianPath creates an eulerian instance
+func NewEulerianPath(g Graph) EulerianCycle {
+	e := &eulerian{}
 	return e
 }
 
-func (e *eulerian_) dfs(g Graph, v int) {
+func (e *eulerian) dfs(g Graph, v int) {
+	// TODO
+}
+
+func (e eulerian) EulerianPath() []int {
+	// TODO
+	return nil
 }

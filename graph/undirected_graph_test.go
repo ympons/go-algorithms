@@ -9,7 +9,7 @@ type Fatalistic interface {
 	Fatal(...interface{})
 }
 
-func graphTest(t Fatalistic) *graph_ {
+func graphTest(t Fatalistic) Graph {
 	f, err := os.Open("../data/tinyG.txt")
 	if err != nil {
 		t.Fatal(err)

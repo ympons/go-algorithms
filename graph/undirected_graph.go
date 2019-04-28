@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"io"
 
-	. "github.com/ympons/go-algorithms/queue"
-	. "github.com/ympons/go-algorithms/stack"
+	"github.com/ympons/go-algorithms/queue"
+	"github.com/ympons/go-algorithms/stack"
 )
 
-// Undirected Graph Api
+// Undirected Graph API
+
+// Graph interface
 type Graph interface {
 	// number of vertices
 	V() int
@@ -22,30 +24,30 @@ type Graph interface {
 	String() string
 }
 
-// Just a Graph factory interface
-type GraphFactory interface {
+// Factory represents a Graph factory interface
+type Factory interface {
 	// Create an empty graph with n vertices
 	NewGraph(int) Graph
 	// Create a graph from a reader
 	NewGraphFromReader(io.Reader) Graph
 }
 
-type graph_ struct {
-	v_, e_ int
-	adj_   [][]int
+type graph struct {
+	v, e int
+	adj  [][]int
 }
 
-// Create a new graph
-func NewGraph(n int) *graph_ {
+// NewGraph creates a new graph
+func NewGraph(n int) Graph {
 	adj := make([][]int, n)
 	for v := 0; v < n; v++ {
 		adj[v] = make([]int, 0, n)
 	}
-	return &graph_{v_: n, e_: 0, adj_: adj}
+	return &graph{v: n, e: 0, adj: adj}
 }
 
-// Create a graph from a reader
-func NewGraphFromReader(r io.Reader) *graph_ {
+// NewGraphFromReader creates a graph from a reader
+func NewGraphFromReader(r io.Reader) Graph {
 	var n, E int
 
 	fmt.Fscanf(r, "%d", &n)
@@ -61,30 +63,30 @@ func NewGraphFromReader(r io.Reader) *graph_ {
 }
 
 // Add an edge v-w
-func (g *graph_) AddEdge(v, w int) {
-	g.adj_[v] = append(g.adj_[v], w)
-	g.adj_[w] = append(g.adj_[w], v)
-	g.e_++
+func (g *graph) AddEdge(v, w int) {
+	g.adj[v] = append(g.adj[v], w)
+	g.adj[w] = append(g.adj[w], v)
+	g.e++
 }
 
 // Number of vertices
-func (g graph_) V() int {
-	return g.v_
+func (g graph) V() int {
+	return g.v
 }
 
 // Number of edges
-func (g graph_) E() int {
-	return g.e_
+func (g graph) E() int {
+	return g.e
 }
 
 // Vertices adjacent to v
-func (g graph_) Adj(v int) []int {
-	return g.adj_[v]
+func (g graph) Adj(v int) []int {
+	return g.adj[v]
 }
 
 // String representation
-func (g graph_) String() string {
-	return fmt.Sprintf("graph: V: %d E: %d -> %+v", g.V(), g.E(), g.adj_)
+func (g graph) String() string {
+	return fmt.Sprintf("graph: V: %d E: %d -> %+v", g.V(), g.E(), g.adj)
 }
 
 // Graph-processing:
@@ -127,20 +129,23 @@ func numberOfSelfLoops(G Graph) int {
 }
 
 // Graph processing
+
+// Paths represents a Graph Paths interface
 type Paths interface {
 	HasPathTo(int) bool
 	PathTo(int) []int
 }
 
 // Depth-first search
-type dfsPaths_ struct {
+type dfsPaths struct {
 	marked []bool
 	edgeTo []int
 	s      int
 }
 
-func NewDFSPaths(g Graph, s int) *dfsPaths_ {
-	paths := &dfsPaths_{
+// NewDFSPaths creates a DFS path
+func NewDFSPaths(g Graph, s int) Paths {
+	paths := &dfsPaths{
 		marked: make([]bool, g.V()),
 		edgeTo: make([]int, g.V()),
 		s:      s,
@@ -150,7 +155,7 @@ func NewDFSPaths(g Graph, s int) *dfsPaths_ {
 	return paths
 }
 
-func (p *dfsPaths_) dfs(g Graph, v int) {
+func (p *dfsPaths) dfs(g Graph, v int) {
 	p.marked[v] = true
 	for _, w := range g.Adj(v) {
 		if !p.marked[w] {
@@ -160,9 +165,9 @@ func (p *dfsPaths_) dfs(g Graph, v int) {
 	}
 }
 
-func (p *dfsPaths_) iterativeDfs(g Graph, v int) {
+func (p *dfsPaths) iterativeDfs(g Graph, v int) {
 	p.marked[v] = true
-	s := NewStack()
+	s := stack.NewStack()
 	for _, w := range g.Adj(v) {
 		s.Push(w)
 	}
@@ -177,11 +182,11 @@ func (p *dfsPaths_) iterativeDfs(g Graph, v int) {
 	}
 }
 
-func (p *dfsPaths_) HasPathTo(v int) bool {
+func (p *dfsPaths) HasPathTo(v int) bool {
 	return p.marked[v]
 }
 
-func (p *dfsPaths_) PathTo(v int) []int {
+func (p *dfsPaths) PathTo(v int) []int {
 	if !p.marked[v] {
 		return nil
 	}
@@ -196,14 +201,15 @@ func (p *dfsPaths_) PathTo(v int) []int {
 }
 
 // Breadth-first search
-type bfsPaths_ struct {
+type bfsPaths struct {
 	marked []bool
 	edgeTo []int
 	s      int
 }
 
-func NewBFSPaths(g Graph, s int) *bfsPaths_ {
-	paths := &bfsPaths_{
+// NewBFSPaths creates a BFS path
+func NewBFSPaths(g Graph, s int) Paths {
+	paths := &bfsPaths{
 		marked: make([]bool, g.V()),
 		edgeTo: make([]int, g.V()),
 		s:      s,
@@ -213,9 +219,9 @@ func NewBFSPaths(g Graph, s int) *bfsPaths_ {
 	return paths
 }
 
-func (p *bfsPaths_) bfs(g Graph, s int) {
+func (p *bfsPaths) bfs(g Graph, s int) {
 	p.marked[s] = true
-	q := NewQueue()
+	q := queue.NewQueue()
 	q.Enqueue(s)
 	for !q.IsEmpty() {
 		v, _ := q.Dequeue()
@@ -229,11 +235,11 @@ func (p *bfsPaths_) bfs(g Graph, s int) {
 	}
 }
 
-func (p *bfsPaths_) HasPathTo(v int) bool {
+func (p *bfsPaths) HasPathTo(v int) bool {
 	return p.marked[v]
 }
 
-func (p *bfsPaths_) PathTo(v int) []int {
+func (p *bfsPaths) PathTo(v int) []int {
 	if !p.marked[v] {
 		return nil
 	}
@@ -248,20 +254,23 @@ func (p *bfsPaths_) PathTo(v int) []int {
 }
 
 // Connected Components
+
+// CC represents a Connected Components interface
 type CC interface {
 	Connected(v, w int) bool
 	Count() int
-	Id(v int) int
+	ID(v int) int
 }
 
-type cc_ struct {
+type cc struct {
 	marked []bool
 	id     []int
 	count  int
 }
 
-func NewCC(g Graph) *cc_ {
-	cc := &cc_{
+// NewCC creates a Connected Component instance
+func NewCC(g Graph) CC {
+	cc := &cc{
 		marked: make([]bool, g.V()),
 		id:     make([]int, g.V()),
 		count:  0,
@@ -276,7 +285,7 @@ func NewCC(g Graph) *cc_ {
 	return cc
 }
 
-func (c *cc_) dfs(g Graph, v int) {
+func (c *cc) dfs(g Graph, v int) {
 	c.marked[v] = true
 	c.id[v] = c.count
 	for _, w := range g.Adj(v) {
@@ -286,14 +295,14 @@ func (c *cc_) dfs(g Graph, v int) {
 	}
 }
 
-func (c cc_) Connected(v, w int) bool {
+func (c cc) Connected(v, w int) bool {
 	return c.id[v] == c.id[w]
 }
 
-func (c cc_) Count() int {
+func (c cc) Count() int {
 	return c.count
 }
 
-func (c cc_) Id(v int) int {
+func (c cc) ID(v int) int {
 	return c.id[v]
 }
