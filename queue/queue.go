@@ -1,5 +1,6 @@
 package queue
 
+// Queue interface
 type Queue interface {
 	Enqueue(int)
 	Dequeue() (int, bool)
@@ -11,17 +12,18 @@ type qnode struct {
 	next  *qnode
 }
 
-type queue_ struct {
+type queue struct {
 	head *qnode
 	tail *qnode
 	n    int
 }
 
-func NewQueue() *queue_ {
-	return &queue_{}
+// NewQueue creates a new Queue
+func NewQueue() Queue {
+	return &queue{}
 }
 
-func (q *queue_) Enqueue(v int) {
+func (q *queue) Enqueue(v int) {
 	node := &qnode{value: v}
 	if q.tail == nil {
 		q.head = node
@@ -33,7 +35,7 @@ func (q *queue_) Enqueue(v int) {
 	q.n++
 }
 
-func (q *queue_) Dequeue() (int, bool) {
+func (q *queue) Dequeue() (int, bool) {
 	if q.head == nil {
 		return 0, false
 	}
@@ -48,6 +50,6 @@ func (q *queue_) Dequeue() (int, bool) {
 	return node.value, true
 }
 
-func (q queue_) IsEmpty() bool {
+func (q queue) IsEmpty() bool {
 	return q.n == 0
 }

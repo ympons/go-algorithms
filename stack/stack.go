@@ -1,8 +1,9 @@
 package stack
 
+// Stack interface
 type Stack interface {
 	Push(int)
-	Pop() int
+	Pop() (int, bool)
 	IsEmpty() bool
 }
 
@@ -11,21 +12,22 @@ type snode struct {
 	next  *snode
 }
 
-type stack_ struct {
+type stack struct {
 	top *snode
 	n   int
 }
 
-func NewStack() *stack_ {
-	return &stack_{}
+// NewStack creates a new Stack
+func NewStack() Stack {
+	return &stack{}
 }
 
-func (s *stack_) Push(v int) {
+func (s *stack) Push(v int) {
 	s.top = &snode{v, s.top}
 	s.n++
 }
 
-func (s *stack_) Pop() (value int, ok bool) {
+func (s *stack) Pop() (value int, ok bool) {
 	if ok = s.n > 0; ok {
 		value, s.top = s.top.value, s.top.next
 		s.n--
@@ -33,6 +35,6 @@ func (s *stack_) Pop() (value int, ok bool) {
 	return
 }
 
-func (s stack_) IsEmpty() bool {
+func (s stack) IsEmpty() bool {
 	return s.n == 0
 }
